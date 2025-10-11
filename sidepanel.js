@@ -32,17 +32,37 @@ const maxTimesInput = document.getElementById('maxTimes');
 const maxChoiceInput = document.getElementById('maxChoice');
 const resultEl = document.getElementById('result');
 
+// 從本地儲存中載入已儲存的表單資料
+chrome.storage.local.get(['target', 'maxTimes', 'maxChoice'], (items) => {
+  if (items.target) {
+    targetInput.value = items.target;
+  }
+  if (items.maxTimes) {
+    maxTimesInput.value = items.maxTimes;
+  }
+  if (items.maxChoice) {
+    maxChoiceInput.value = items.maxChoice;
+  }
+});
+
 form.addEventListener('submit', (e) => {
   e.preventDefault();
+
+  const target = targetInput.value.split(',').map(s => s.trim()).filter(s => s);
+  const maxTimes = parseInt(maxTimesInput.value, 10);
+  const maxChoice = parseInt(maxChoiceInput.value, 10);
+
+  // 將表單資料儲存到本地儲存
+  chrome.storage.local.set({
+    target: targetInput.value,
+    maxTimes: maxTimesInput.value,
+    maxChoice: maxChoiceInput.value
+  });
 
   if (!board) {
     resultEl.textContent = '尚未獲取版面狀態，無法進行計算。';
     return;
   }
-
-  const target = targetInput.value.split(',').map(s => s.trim()).filter(s => s);
-  const maxTimes = parseInt(maxTimesInput.value, 10);
-  const maxChoice = parseInt(maxChoiceInput.value, 10);
 
   if (target.length === 0 || isNaN(maxTimes) || isNaN(maxChoice)) {
     resultEl.textContent = '請輸入有效的參數。';

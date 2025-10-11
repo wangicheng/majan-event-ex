@@ -3,7 +3,7 @@
   "name": "透明麻將",
   "version": "1.0",
   "description": "Captures WebSocket messages and displays the last one in a side panel.",
-  "permissions": ["activeTab", "scripting", "sidePanel"],
+  "permissions": ["activeTab", "scripting", "sidePanel", "storage"],
   "background": {
     "service_worker": "background.js"
   },
