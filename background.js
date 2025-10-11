@@ -100,3 +100,7 @@ function processTilesData(arr) {
     deadwall: arr.slice(59)
   };
 }
+
+chrome.sidePanel
+  .setPanelBehavior({ openPanelOnActionClick: true })
+  .catch((error) => console.error(error));
