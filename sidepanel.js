@@ -32,6 +32,11 @@ const maxTimesInput = document.getElementById('maxTimes');
 const maxChoiceInput = document.getElementById('maxChoice');
 const resultEl = document.getElementById('result');
 const solutionDisplayEl = document.getElementById('solution-display');
+const solutionContainerEl = document.getElementById('solution-display-container');
+const closeSolutionBtn = document.getElementById('close-solution-btn');
+
+// 預設隱藏換牌步驟區塊
+solutionContainerEl.classList.add('hidden');
 
 // 從本地儲存中載入已儲存的表單資料
 chrome.storage.local.get(['handsInput', 'maxTimes', 'maxChoice'], (items) => {
@@ -148,5 +153,12 @@ resultEl.addEventListener('click', (e) => {
 
     // 更新 solution display
     solutionDisplayEl.textContent = resultItem.dataset.solution;
+    // 點擊時顯示換牌步驟區塊
+    solutionContainerEl.classList.remove('hidden');
   }
+});
+
+// 監聽關閉按鈕的點擊事件
+closeSolutionBtn.addEventListener('click', () => {
+  solutionContainerEl.classList.add('hidden');
 });
