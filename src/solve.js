@@ -4,9 +4,10 @@
  * @param {string[]} target - 目標手牌。
  * @param {number} maxTimes - 最大換牌次數。
  * @param {number} maxChoice - 最大選擇數量。
- * @returns {{take: number, solution: string[][]}} 包含摸牌數量和每次換牌需選擇的牌。
+ * @param {string[]} waiting - 聽牌。
+ * @returns {{take: number, solution: string[][], waited: number}} 包含摸牌數量和每次換牌需選擇的牌。
  */
-export function solve(board, target, maxTimes, maxChoice) {
+export function solve(board, target, maxTimes, maxChoice, waiting) {
   /**
    * 計算牌組中每種牌的數量。
    * @param {string[]} tiles - 牌的陣列。
@@ -118,7 +119,7 @@ export function solve(board, target, maxTimes, maxChoice) {
 
   let takeL = 0;
   let takeR = board.wall.length;
-  let ans = { take: -1, solution: null };
+  let ans = { take: -1, solution: null, waited: 0 };
 
   while (takeL <= takeR) {
     const takeM = Math.floor((takeL + takeR) / 2);
@@ -132,6 +133,13 @@ export function solve(board, target, maxTimes, maxChoice) {
       }
       takeR = takeM - 1;
     }
+  }
+
+  // 計算聽牌在剩餘牌山中的數量
+  if (ans.take !== -1) {
+    const remainingWall = board.wall.slice(ans.take);
+    const waitingTiles = new Set(waiting);
+    ans.waited = remainingWall.filter((tile) => waitingTiles.has(tile)).length;
   }
 
   return ans;

@@ -30,10 +30,11 @@ const form = document.getElementById('solver-form');
 const targetInput = document.getElementById('target');
 const maxTimesInput = document.getElementById('maxTimes');
 const maxChoiceInput = document.getElementById('maxChoice');
+const waitingInput = document.getElementById('waiting');
 const resultEl = document.getElementById('result');
 
 // 從本地儲存中載入已儲存的表單資料
-chrome.storage.local.get(['target', 'maxTimes', 'maxChoice'], (items) => {
+chrome.storage.local.get(['target', 'maxTimes', 'maxChoice', 'waiting'], (items) => {
   if (items.target) {
     targetInput.value = items.target;
   }
@@ -43,6 +44,9 @@ chrome.storage.local.get(['target', 'maxTimes', 'maxChoice'], (items) => {
   if (items.maxChoice) {
     maxChoiceInput.value = items.maxChoice;
   }
+  if (items.waiting) {
+    waitingInput.value = items.waiting;
+  }
 });
 
 form.addEventListener('submit', (e) => {
@@ -51,12 +55,14 @@ form.addEventListener('submit', (e) => {
   const target = targetInput.value.split(',').map(s => s.trim()).filter(s => s);
   const maxTimes = parseInt(maxTimesInput.value, 10);
   const maxChoice = parseInt(maxChoiceInput.value, 10);
+  const waiting = waitingInput.value.split(',').map(s => s.trim()).filter(s => s);
 
   // 將表單資料儲存到本地儲存
   chrome.storage.local.set({
     target: targetInput.value,
     maxTimes: maxTimesInput.value,
-    maxChoice: maxChoiceInput.value
+    maxChoice: maxChoiceInput.value,
+    waiting: waitingInput.value
   });
 
   if (!board) {
@@ -76,7 +82,7 @@ form.addEventListener('submit', (e) => {
   };
   const sortedTarget = sortMahjongTiles(target);
 
-  const result = solve(currentBoard, sortedTarget, maxTimes, maxChoice);
+  const result = solve(currentBoard, sortedTarget, maxTimes, maxChoice, waiting);
 
   if (result.take === -1) {
     resultEl.textContent = '找不到解法。';
@@ -90,6 +96,7 @@ form.addEventListener('submit', (e) => {
     } else {
       output += '  不需要換牌。\n';
     }
+    output += `\n聽牌張數 (Waited): ${result.waited}\n`;
     resultEl.textContent = output;
   }
 });
