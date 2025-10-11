@@ -119,7 +119,7 @@ export function solve(board, target, maxTimes, maxChoice, waiting) {
 
   let takeL = 0;
   let takeR = board.wall.length;
-  let ans = { take: -1, solution: null, waited: 0 };
+  let ans = { take: -1, solution: null, waited: -1 };
 
   while (takeL <= takeR) {
     const takeM = Math.floor((takeL + takeR) / 2);

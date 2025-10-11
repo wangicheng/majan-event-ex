@@ -31,6 +31,7 @@ const handsInput = document.getElementById('hands-input');
 const maxTimesInput = document.getElementById('maxTimes');
 const maxChoiceInput = document.getElementById('maxChoice');
 const resultEl = document.getElementById('result');
+const solutionDisplayEl = document.getElementById('solution-display');
 
 // 從本地儲存中載入已儲存的表單資料
 chrome.storage.local.get(['handsInput', 'maxTimes', 'maxChoice'], (items) => {
@@ -74,12 +75,15 @@ form.addEventListener('submit', (e) => {
 
   // 清空先前的結果
   resultEl.innerHTML = '';
+  solutionDisplayEl.textContent = ''; // Clear solution display as well
 
   // 為了結果一致性，對手牌進行排序
   const currentBoard = {
       ...board,
       hand: sortMahjongTiles(board.hand)
   };
+
+  const allResults = [];
 
   lines.forEach(line => {
     const spaceIndex = line.indexOf(' ');
@@ -97,51 +101,52 @@ form.addEventListener('submit', (e) => {
     const resultItem = document.createElement('div');
     resultItem.className = 'result-item';
 
-    let output = `<h3>目標: ${sortedTarget.join(', ')}</h3>`;
+    let solutionOutput = '';
+    if (result.solution && result.solution.length > 0) {
+      result.solution.forEach((step, i) => {
+        solutionOutput += `  步驟 ${i + 1}: 丟 ${sortMahjongTiles(step).join(', ')}\n`;
+      });
+    } else {
+      solutionOutput += '  不需要換牌。\n';
+    }
+    resultItem.dataset.solution = solutionOutput;
+
+    let output = `<h3>${sortedTarget.join(', ')}</h3>`;
 
     if (result.take === -1) {
-      output += '<p>找不到解法。</p>';
+      output += `<p>找不到解法。</p>`;
     } else {
-      output += `<p>摸牌數量 (Take): ${result.take}</p>`;
-      output += `<p>聽牌張數 (Waited): ${result.waited}</p>`;
-      output += `<button class="toggle-solution">顯示換牌步驟</button>`;
-      
-      let solutionOutput = '';
-      if (result.solution && result.solution.length > 0) {
-        result.solution.forEach((step, i) => {
-          solutionOutput += `  步驟 ${i + 1}: 丟 ${sortMahjongTiles(step).join(', ')}\n`;
-        });
-      } else {
-        solutionOutput += '  不需要換牌。\n';
-      }
-      output += `<div class="solution-details" style="display: none;"><pre>${solutionOutput}</pre></div>`;
+      output += `<p>${result.take}</p>`;
+      output += `<p>${result.waited}</p>`;
     }
     resultItem.innerHTML = output;
-    resultEl.appendChild(resultItem);
+    
+    // 直接使用 result.waited 進行排序
+    allResults.push({ element: resultItem, waited: result.waited });
+  });
+
+  // 根據 waited 由大到小排序
+  allResults.sort((a, b) => b.waited - a.waited);
+
+  // 將排序後的結果附加到 DOM
+  allResults.forEach(res => {
+    resultEl.appendChild(res.element);
   });
 });
 
-// 使用事件委派來處理所有 solution 的切換按鈕
+// 使用事件委派來處理所有 result-item 的點擊
 resultEl.addEventListener('click', (e) => {
-  if (e.target.classList.contains('toggle-solution')) {
-    const solutionDetails = e.target.nextElementSibling;
-    const isVisible = solutionDetails.style.display === 'block';
-
-    // 先隱藏所有其他的 solution
-    document.querySelectorAll('.solution-details').forEach(el => {
-      if (el !== solutionDetails) {
-        el.style.display = 'none';
-        el.previousElementSibling.textContent = '顯示換牌步驟';
-      }
+  const resultItem = e.target.closest('.result-item');
+  if (resultItem) {
+    // 移除其他項目的 selected class
+    document.querySelectorAll('.result-item.selected').forEach(el => {
+      el.classList.remove('selected');
     });
 
-    // 切換被點擊的 solution
-    if (isVisible) {
-      solutionDetails.style.display = 'none';
-      e.target.textContent = '顯示換牌步驟';
-    } else {
-      solutionDetails.style.display = 'block';
-      e.target.textContent = '隱藏換牌步驟';
-    }
+    // 為點擊的項目添加 selected class
+    resultItem.classList.add('selected');
+
+    // 更新 solution display
+    solutionDisplayEl.textContent = resultItem.dataset.solution;
   }
 });
