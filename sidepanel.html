@@ -9,8 +9,9 @@
   <h1>透明麻將</h1>
   <form id="solver-form">
     <div>
-      <label for="target">目標手牌 (Target Hand):</label>
-      <input type="text" id="target" name="target" placeholder="例如：1m,2m,3m,4m,5m,6m,7m,8m,9m,1p,1p,1p,2s,2s">
+      <label for="hands-input">目標手牌與聽牌 (Target Hand & Waiting Tiles):</label>
+      <textarea id="hands-input" name="hands-input" placeholder="每行一組，目標手牌和聽牌用空格隔開。麻將牌請連續輸入，不要使用逗號或空格。
+例如：1m2m3m4m5m6m7m8m9m1p1p1p2s2s 1m4m7m" rows="5"></textarea>
     </div>
     <div>
       <label for="maxTimes">最大換牌次數 (Max Times):</label>
@@ -20,15 +21,11 @@
       <label for="maxChoice">最大選擇數量 (Max Choice):</label>
       <input type="number" id="maxChoice" name="maxChoice" value="13">
     </div>
-    <div>
-      <label for="waiting">聽牌 (Waiting Tiles):</label>
-      <input type="text" id="waiting" name="waiting" placeholder="例如：1m,4m,7m">
-    </div>
     <button type="submit">計算</button>
   </form>
   <div id="result-container">
     <h2>結果 (Result)</h2>
-    <pre id="result"></pre>
+    <div id="result"></div>
   </div>
   <script type="module" src="sidepanel.js"></script>
 </body>

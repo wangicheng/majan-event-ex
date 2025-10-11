@@ -19,7 +19,7 @@ label {
   font-weight: bold;
 }
 
-input[type="text"], input[type="number"] {
+input[type="text"], input[type="number"], textarea {
   width: 100%;
   padding: 8px;
   box-sizing: border-box;
@@ -41,16 +41,53 @@ button:hover {
   background-color: #0056b3;
 }
 
+.result-item {
+  background-color: #fff;
+  padding: 1em;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 1em;
+}
+
+.result-item h3 {
+  margin-top: 0;
+  font-size: 1.1em;
+  word-break: break-all;
+}
+
+.result-item p {
+  margin: 0.5em 0;
+}
+
+.toggle-solution {
+  padding: 5px 10px;
+  font-size: 0.9em;
+  margin-top: 0.5em;
+  background-color: #6c757d;
+}
+
+.toggle-solution:hover {
+  background-color: #5a6268;
+}
+
+.solution-details {
+  margin-top: 1em;
+  padding-top: 1em;
+  border-top: 1px solid #eee;
+}
+
+.solution-details pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background-color: #f8f9fa;
+  padding: 0.5em;
+  border-radius: 4px;
+}
+
 #result-container {
   margin-top: 2em;
 }
 
 #result {
-  background-color: #fff;
-  padding: 1em;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  min-height: 100px;
+  /* 移除 pre 樣式，因為它現在是 div 容器 */
 }
