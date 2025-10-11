@@ -10,11 +10,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (newBoard !== null) { // 只有當訊息被成功解讀且符合規則時才處理
       currentBoard = newBoard;
 
-      // 通知 popup.js 有新的已解讀訊息
+      // 通知 sidepanel.js 有新的已解讀訊息
       chrome.runtime.sendMessage({ type: "WS_MESSAGE_UPDATE", payload: newBoard });
     }
   } else if (request.type === "GET_LAST_WS_MESSAGE") {
-    // 當 popup.js 請求時，回傳最後一條已解讀的訊息
+    // 當 sidepanel.js 請求時，回傳最後一條已解讀的訊息
     sendResponse({ currentBoard: currentBoard });
   }
 });

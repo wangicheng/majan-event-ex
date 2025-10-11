@@ -3,7 +3,7 @@ import { sortMahjongTiles } from './src/mahjongSorter.js';
 
 let board = null; // 用於儲存從 background.js 獲取的版面狀態
 
-// 當 popup 打開時，向 background.js 請求最新的版面狀態
+// 當 sidepanel 打開時，向 background.js 請求最新的版面狀態
 chrome.runtime.sendMessage({ type: "GET_LAST_WS_MESSAGE" }, (response) => {
   if (chrome.runtime.lastError) {
     console.error(chrome.runtime.lastError.message);
