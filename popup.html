@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Majan Solver</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <h1>麻將事件解題器</h1>
+  <form id="solver-form">
+    <div>
+      <label for="target">目標手牌 (Target Hand):</label>
+      <input type="text" id="target" name="target" placeholder="例如：1m,2m,3m,4m,5m,6m,7m,8m,9m,1p,1p,1p,2s,2s">
+    </div>
+    <div>
+      <label for="maxTimes">最大換牌次數 (Max Times):</label>
+      <input type="number" id="maxTimes" name="maxTimes" value="3">
+    </div>
+    <div>
+      <label for="maxChoice">最大選擇數量 (Max Choice):</label>
+      <input type="number" id="maxChoice" name="maxChoice" value="13">
+    </div>
+    <button type="submit">計算</button>
+  </form>
+  <div id="result-container">
+    <h2>結果 (Result)</h2>
+    <pre id="result"></pre>
+  </div>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
