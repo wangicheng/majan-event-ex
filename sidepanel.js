@@ -34,6 +34,7 @@ const resultEl = document.getElementById('result');
 const solutionDisplayEl = document.getElementById('solution-display');
 const solutionContainerEl = document.getElementById('solution-display-container');
 const closeSolutionBtn = document.getElementById('close-solution-btn');
+const executeSolutionBtn = document.getElementById('execute-solution-btn');
 
 // 預設隱藏換牌步驟區塊
 solutionContainerEl.classList.add('hidden');
@@ -106,6 +107,11 @@ form.addEventListener('submit', (e) => {
     const resultItem = document.createElement('div');
     resultItem.className = 'result-item';
 
+    // 將原始 solution 數據儲存為 JSON 字串，以便後續使用
+    resultItem.dataset.rawSolution = JSON.stringify(result.solution || []);
+    // 同時儲存用於計算此解法的手牌
+    resultItem.dataset.hand = JSON.stringify(currentBoard.hand);
+
     let solutionOutput = '';
     if (result.solution && result.solution.length > 0) {
       result.solution.forEach((step, i) => {
@@ -161,4 +167,124 @@ resultEl.addEventListener('click', (e) => {
 // 監聽關閉按鈕的點擊事件
 closeSolutionBtn.addEventListener('click', () => {
   solutionContainerEl.classList.add('hidden');
+});
+
+// 監聽自動執行按鈕的點擊事件
+executeSolutionBtn.addEventListener('click', async () => {
+  const selectedItem = document.querySelector('.result-item.selected');
+  if (!selectedItem || !selectedItem.dataset.rawSolution || !selectedItem.dataset.hand) {
+    alert('請先選擇一個解法。');
+    return;
+  }
+
+  const solution = JSON.parse(selectedItem.dataset.rawSolution);
+  const initialHand = JSON.parse(selectedItem.dataset.hand);
+  
+  if (!solution || solution.length === 0) {
+    console.log('沒有找到需要執行的換牌步驟。');
+    return;
+  }
+
+  if (!board || !board.deadwall) {
+    alert('無法獲取牌山 (deadwall) 狀態，無法執行自動換牌。');
+    return;
+  }
+
+  // 建立手牌和牌山的副本，以便在執行過程中修改
+  let currentHand = [...initialHand];
+  let deadwall = [...board.deadwall];
+
+  // --- 座標計算函式 ---
+  // 計算手牌區第 n 張牌的座標 (0-12)
+  function getTileCoords(n) {
+    const normalizedX = 0.140 + 0.049 * n;
+    const normalizedY = 0.903;
+    return { normalizedX, normalizedY };
+  }
+
+  // --- 執行邏輯 ---
+  // 找到當前活動的遊戲分頁
+  const [tab] = await chrome.tabs.query({ active: true, url: ["*://*.maj-soul.com/*", "*://game.mahjongsoul.com/*"] });
+  if (!tab) {
+    alert('找不到符合條件的遊戲分頁。請確保遊戲分頁是當前活動的分頁。');
+    return;
+  }
+
+  // 異步發送點擊訊息的輔助函式
+  async function performClick(coords) {
+    try {
+      await chrome.tabs.sendMessage(tab.id, {
+        type: "PERFORM_CANVAS_CLICK",
+        payload: { selector: "canvas", ...coords }
+      });
+    } catch (e) {
+      console.error("發送點擊訊息失敗:", e);
+      throw new Error("無法與遊戲分頁通訊。請確認內容腳本已注入或重新整理遊戲頁面。");
+    }
+  }
+
+  // 遍歷解法的每一步
+  for (let i = 0; i < solution.length; i++) {
+    const tilesToDiscard = solution[i];
+    console.log(`步驟 ${i + 1}: 丟 ${tilesToDiscard.join(', ')}`);
+
+    if (tilesToDiscard.length === 0) {
+      console.log('本步驟無需丟牌，跳過。');
+      continue;
+    }
+
+    // 1. 找出要丟的牌在當前手牌中的索引
+    const handCopyForFindingIndices = [...currentHand];
+    const indicesToClick = [];
+    for (const tile of tilesToDiscard) {
+      const index = handCopyForFindingIndices.indexOf(tile);
+      if (index !== -1) {
+        indicesToClick.push(index);
+        handCopyForFindingIndices[index] = null; // 標記為已使用，以處理重複的牌
+      } else {
+        console.error(`在當前手牌 ${currentHand.join(', ')} 中找不到要丟的牌 "${tile}"。`);
+        alert(`錯誤：在手牌中找不到要丟棄的牌 "${tile}"。手牌可能已變更，自動化中止。`);
+        return;
+      }
+    }
+
+    // 2. 模擬點擊手牌以選取要丟棄的牌
+    // console.log(`點擊手牌索引: ${indicesToClick.join(', ')}`);
+    for (const index of indicesToClick) {
+      await performClick(getTileCoords(index));
+    }
+
+    // 點擊確認換牌按鈕
+    await performClick({ normalizedX: 0.651, normalizedY: 0.739 });
+
+    // 3. 從內部狀態更新牌山與手牌，不進行點擊
+    const numToDraw = tilesToDiscard.length;
+    const drawnTiles = [];
+    for (let j = 0; j < numToDraw; j++) {
+      if (deadwall.length === 0) {
+        alert('錯誤：牌山已空，無法摸牌。自動化中止。');
+        return;
+      }
+      // 從我們的內部狀態中取出牌，不模擬點擊
+      const drawnTile = deadwall.shift();
+      drawnTiles.push(drawnTile);
+    }
+
+    // 4. 更新內部手牌狀態以進行下一輪計算
+    let tempHand = [...currentHand];
+    for (const tile of tilesToDiscard) {
+      const indexToRemove = tempHand.indexOf(tile);
+      if (indexToRemove > -1) {
+        tempHand.splice(indexToRemove, 1);
+      }
+    }
+    const newHand = [...tempHand, ...drawnTiles];
+    currentHand = sortMahjongTiles(newHand);
+    // console.log(`步驟 ${i + 1} 完成後的新手牌: ${currentHand.join(', ')}`);
+
+    // 在進入下一步驟前稍作等待
+    await new Promise(resolve => setTimeout(resolve, 1500));
+  }
+
+  console.log('✅ 自動化步驟執行完畢。');
 });

@@ -10,7 +10,7 @@
   "content_scripts": [
     {
       "matches": ["https://game.maj-soul.com/1/*"],
-      "js": ["inject.js"],
+      "js": ["inject.js", "canvas_click_handler.js"],
       "run_at": "document_start"
     }
   ],
