@@ -101,6 +101,22 @@ function processTilesData(arr) {
   };
 }
 
+chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
+  if (!tab.url) return;
+  if (tab.url.startsWith("https://game.maj-soul.com/1/")) {
+    await chrome.sidePanel.setOptions({
+      tabId,
+      path: 'sidepanel.html',
+      enabled: true
+    });
+  } else {
+    await chrome.sidePanel.setOptions({
+      tabId,
+      enabled: false
+    });
+  }
+});
+
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
