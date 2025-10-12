@@ -23,6 +23,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === "WS_MESSAGE_UPDATE" && request.payload) {
     board = request.payload;
     console.log('版面狀態已更新:', board);
+    resultEl.innerHTML = ''; // 清空舊的計算結果
+    solutionDisplayEl.textContent = ''; // 清空解法顯示
+    solutionContainerEl.classList.add('hidden'); // 隱藏解法區塊
   }
 });
 
