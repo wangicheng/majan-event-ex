@@ -60,7 +60,7 @@ export function solve(board, target, maxTimes, maxChoice, waiting) {
       let times = 0;
       const currentHand = new Map(hand);
 
-      while (totalChanged < change) {
+      while (totalChanged < change && times < maxTimes) {
         const operation = new Map();
         let changed = 0;
 
@@ -103,10 +103,6 @@ export function solve(board, target, maxTimes, maxChoice, waiting) {
 
         totalChanged += changed;
         times++;
-
-        if (times >= maxTimes) {
-          break;
-        }
       }
 
       if (totalChanged === change) {
