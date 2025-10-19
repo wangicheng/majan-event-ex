@@ -3,18 +3,53 @@ import { sortMahjongTiles } from './src/mahjongSorter.js';
 
 let board = null; // 用於儲存從 background.js 獲取的版面狀態
 
+const form = document.getElementById('solver-form');
+const handsInput = document.getElementById('hands-input');
+const maxTimesInput = document.getElementById('maxTimes');
+const maxChoiceInput = document.getElementById('maxChoice');
+const lockedInput = document.getElementById('lockedInput');
+const resultEl = document.getElementById('result');
+const solutionDisplayEl = document.getElementById('solution-display');
+const solutionContainerEl = document.getElementById('solution-display-container');
+const closeSolutionBtn = document.getElementById('close-solution-btn');
+const executeSolutionBtn = document.getElementById('execute-solution-btn');
+
+// 新增：用於顯示版面狀態的 DOM 元素
+const boardHandEl = document.getElementById('board-hand');
+const boardDoraEl = document.getElementById('board-dora');
+const boardWallEl = document.getElementById('board-wall');
+const boardDeadwallEl = document.getElementById('board-deadwall');
+
+// 新增：渲染版面狀態的函數
+function renderBoardState() {
+  if (board) {
+    boardHandEl.textContent = board.hand ? board.hand.join(', ') : 'N/A';
+    boardDoraEl.textContent = board.dora ? board.dora.join(', ') : 'N/A';
+    boardWallEl.textContent = board.wall ? board.wall.join(', ') : 'N/A';
+    boardDeadwallEl.textContent = board.deadwall ? board.deadwall.join(', ') : 'N/A';
+  } else {
+    boardHandEl.textContent = '尚未獲取';
+    boardDoraEl.textContent = '尚未獲取';
+    boardWallEl.textContent = '尚未獲取';
+    boardDeadwallEl.textContent = '尚未獲取';
+  }
+}
+
 // 當 sidepanel 打開時，向 background.js 請求最新的版面狀態
 chrome.runtime.sendMessage({ type: "GET_LAST_WS_MESSAGE" }, (response) => {
   if (chrome.runtime.lastError) {
     console.error(chrome.runtime.lastError.message);
     resultEl.textContent = '無法連接到背景腳本。';
+    renderBoardState(); // 即使出錯也嘗試渲染，顯示「尚未獲取」
     return;
   }
   if (response && response.currentBoard) {
     board = response.currentBoard;
     console.log('已獲取初始版面狀態:', board);
+    renderBoardState(); // 獲取到初始狀態後渲染
   } else {
     resultEl.textContent = '尚未從遊戲中獲取任何版面狀態。';
+    renderBoardState(); // 未獲取到狀態時渲染，顯示「尚未獲取」
   }
 });
 
@@ -26,19 +61,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     resultEl.innerHTML = ''; // 清空舊的計算結果
     solutionDisplayEl.textContent = ''; // 清空解法顯示
     solutionContainerEl.classList.add('hidden'); // 隱藏解法區塊
+    renderBoardState(); // 狀態更新後渲染
   }
 });
-
-const form = document.getElementById('solver-form');
-const handsInput = document.getElementById('hands-input');
-const maxTimesInput = document.getElementById('maxTimes');
-const maxChoiceInput = document.getElementById('maxChoice');
-const lockedInput = document.getElementById('lockedInput');
-const resultEl = document.getElementById('result');
-const solutionDisplayEl = document.getElementById('solution-display');
-const solutionContainerEl = document.getElementById('solution-display-container');
-const closeSolutionBtn = document.getElementById('close-solution-btn');
-const executeSolutionBtn = document.getElementById('execute-solution-btn');
 
 // 預設隱藏換牌步驟區塊
 solutionContainerEl.classList.add('hidden');

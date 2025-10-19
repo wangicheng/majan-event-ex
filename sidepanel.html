@@ -6,26 +6,36 @@
   <link rel="stylesheet" href="sidepanel.css">
 </head>
 <body>
-  <h1>透明麻將</h1>
+  <div id="current-board-display">
+    <h2>當前版面狀態</h2>
+    <p>手牌：<span id="board-hand">尚未獲取</span></p>
+    <p>寶牌：<span id="board-dora">尚未獲取</span></p>
+    <p>牌山：<span id="board-wall">尚未獲取</span></p>
+    <p>抽牌：<span id="board-deadwall">尚未獲取</span></p>
+  </div>
   <form id="solver-form">
     <div>
-      <label for="hands-input">目標手牌與聽牌 (Target Hand & Waiting Tiles):</label>
+      <label for="hands-input">目標手牌與聽牌：</label>
       <textarea id="hands-input" name="hands-input" placeholder="每行一組，目標手牌和聽牌用空格隔開。麻將牌請連續輸入，不要使用逗號或空格。
 例如：1m2m3m4m5m6m7m8m9m1p1p1p2s2s 1m4m7m" rows="5"></textarea>
     </div>
-    <div>
-      <label for="maxTimes">最大換牌次數 (Max Times):</label>
-      <input type="number" id="maxTimes" name="maxTimes" value="3">
+    <div class="number-inputs-group">
+      <div>
+        <label for="maxTimes">最大換牌次數：</label>
+        <input type="number" id="maxTimes" name="maxTimes" value="3">
+      </div>
+      <div>
+        <label for="maxChoice">最大選擇數量：</label>
+        <input type="number" id="maxChoice" name="maxChoice" value="13">
+      </div>
+      <div>
+        <label for="lockedInput">鎖定牌數：</label>
+        <input type="number" id="lockedInput" name="lockedInput" value="0">
+      </div>
+      <div class="submit-button-wrapper">
+        <button type="submit">計算</button>
+      </div>
     </div>
-    <div>
-      <label for="maxChoice">最大選擇數量 (Max Choice):</label>
-      <input type="number" id="maxChoice" name="maxChoice" value="13">
-    </div>
-    <div>
-      <label for="lockedInput">鎖定牌數 (Locked Tiles):</label>
-      <input type="number" id="lockedInput" name="lockedInput" value="0">
-    </div>
-    <button type="submit">計算</button>
   </form>
   <div id="result-container">
     <h2>結果 (Result)</h2>

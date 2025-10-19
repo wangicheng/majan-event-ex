@@ -1,7 +1,7 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   padding: 1em;
-  width: 550px;
+  width: 560px;
   background-color: #f9f9f9;
   display: flex;
   flex-direction: column;
@@ -16,6 +16,48 @@ h1, h2 {
 
 #solver-form div {
   margin-bottom: 1em;
+}
+
+.number-inputs-group {
+  display: flex;
+  gap: 1em; /* Space between the input groups */
+  margin-bottom: 1em; /* Keep the margin for the whole group */
+  align-items: flex-end; /* 將所有子元素（包括按鈕）的底部對齊 */
+}
+
+.number-inputs-group > div {
+  /* This applies to the three input divs and the submit-button-wrapper div */
+  flex: 1; /* Default: distribute space equally among the input groups */
+  margin-bottom: 0; /* Remove individual div margin, as the group has it */
+  display: flex; /* 使每個輸入組內部也成為 flex 容器 */
+  flex-direction: column; /* 讓 label 和 input 垂直堆疊 */
+  justify-content: flex-end; /* 將 label 和 input 推到底部 */
+}
+
+/* Ensure labels and inputs within these flex items still stack vertically */
+.number-inputs-group label {
+  display: block; /* Keep label as block to stack above input */
+  margin-bottom: 0.5em;
+  font-weight: bold;
+}
+
+.number-inputs-group input[type="number"] {
+  width: 100%; /* Take full width of its flex item parent */
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Override flex: 1 for the submit button wrapper to make it narrower */
+.number-inputs-group .submit-button-wrapper {
+  flex: 0 0 auto; /* Don't grow, don't shrink, base width on content */
+  /* 移除 width: 100%; 因為 flex-basis: auto 會根據內容決定寬度 */
+}
+
+.number-inputs-group .submit-button-wrapper button {
+  width: auto; /* 讓按鈕根據內容自動調整寬度 */
+  /* 按鈕的 padding 和 height 會使其與輸入框底部對齊 */
 }
 
 label {
@@ -99,7 +141,6 @@ button:hover {
 }
 
 #result-container {
-  margin-top: 2em;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -163,4 +204,30 @@ button:hover {
 
 .hidden {
   display: none;
+}
+
+#current-board-display {
+  background-color: #e6f7ff; /* 淺藍色背景 */
+  border: 1px solid #91d5ff; /* 藍色邊框 */
+  border-radius: 4px;
+  padding: 1em;
+  margin-bottom: 1.5em;
+}
+
+#current-board-display h2 {
+  margin-top: 0;
+  margin-bottom: 0.8em;
+  color: #0056b3;
+  font-size: 1.1em;
+}
+
+#current-board-display p {
+  margin: 0.4em 0;
+  font-size: 0.95em;
+  color: #333;
+}
+
+#current-board-display span {
+  font-weight: bold;
+  color: #007bff;
 }
