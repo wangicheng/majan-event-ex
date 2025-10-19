@@ -26,8 +26,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
  */
 function interpretMessage(rawMessage) {
   // 由於每個單元是 8 個字符長，我們只處理總長度合理的訊息
-  // 8 * 107 = 856 (最小長度)
-  if (rawMessage.length < 856) {
+  // 8 * 108 = 864 (最小長度)
+  if (rawMessage.length < 864) {
     return null; 
   }
 
@@ -35,16 +35,16 @@ function interpretMessage(rawMessage) {
     const decoder = new TextDecoder();
     const decodedString = decoder.decode(rawMessage);
 
-    // --- 步驟 1: 尋找符合 107 到 108 次重複的長字串區塊 ---
+    // --- 步驟 1: 尋找符合 108 次重複的長字串區塊 ---
     
     // 定義牌的子模式 (Pattern P)
     const tilePattern = '[19]m|[0-9]p|[0-9]s|[1-7]z';
     
     // 定義完整的區塊正則表達式
     // 注意：我們將整個長區塊用一個捕獲組包起來，以便提取完整的匹配字串。
-    // P 加上六個任意字符，重複 107 到 108 次。
+    // P 加上六個任意字符，重複 108 次。
     const blockRegex = new RegExp(
-      `((?:(?:${tilePattern})(?:[\\s\\S]{6})){107,108})`
+      `((?:(?:${tilePattern})(?:[\\s\\S]{6})){108})`
     );
     
     const blockMatch = decodedString.match(blockRegex);
@@ -71,7 +71,7 @@ function interpretMessage(rawMessage) {
     const tiles = [...targetBlock.matchAll(tileExtractionRegex)]
       .map(match => match[1]);
 
-    if (tiles.length >= 107) {
+    if (tiles.length == 108) {
       return tiles; // 直接返回原始牌組陣列
     } else {
       // 理論上這不應該發生，但作為防禦性檢查
