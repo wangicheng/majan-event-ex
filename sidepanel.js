@@ -29,7 +29,11 @@ const boardDeadwallEl = document.getElementById('board-deadwall');
  */
 function processTilesData(arr) {
   if (!arr || !Array.isArray(arr)) return null;
-  const newArr = [...arr]; // 創建副本以避免修改原始陣列
+  const newArr = arr.map(tile => {
+    if (tile === '0p') return '5p';
+    if (tile === '0s') return '5s';
+    return tile;
+  });
   const addDummyTile = document.getElementById('add-dummy-tile').checked;
 
   if (newArr.length !== 108) {
