@@ -72,7 +72,7 @@ function interpretMessage(rawMessage) {
       .map(match => match[1]);
 
     if (tiles.length >= 107) {
-      return processTilesData(tiles); // 調用新的函數進行處理
+      return tiles; // 直接返回原始牌組陣列
     } else {
       // 理論上這不應該發生，但作為防禦性檢查
       return null; 
@@ -82,23 +82,6 @@ function interpretMessage(rawMessage) {
     console.error("解讀訊息失敗:", e);
     return null; // 解讀失敗
   }
-}
-
-/**
- * 處理牌的陣列，進行特定的轉換和分組。
- * @param {string[]} arr - 原始的牌代碼陣列。
- * @returns {object} - 包含 'hand', 'dora', 'wall' 和 'deadwall'。
- */
-function processTilesData(arr) {
-  if (arr.length === 107) {
-    arr.unshift('1a');
-  }
-  return {
-    hand: arr.slice(0, 13),
-    dora: arr.slice(13, 23),
-    wall: arr.slice(23, 59),
-    deadwall: arr.slice(59)
-  };
 }
 
 chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {

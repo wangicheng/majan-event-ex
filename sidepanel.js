@@ -2,6 +2,7 @@ import { solve } from './src/solve.js';
 import { sortMahjongTiles } from './src/mahjongSorter.js';
 
 let board = null; // 用於儲存從 background.js 獲取的版面狀態
+let rawBoard = null; // 用於儲存未經處理的原始版面狀態
 
 const form = document.getElementById('solver-form');
 const handsInput = document.getElementById('hands-input');
@@ -13,12 +14,39 @@ const solutionDisplayEl = document.getElementById('solution-display');
 const solutionContainerEl = document.getElementById('solution-display-container');
 const closeSolutionBtn = document.getElementById('close-solution-btn');
 const executeSolutionBtn = document.getElementById('execute-solution-btn');
+const addDummyTileCheckbox = document.getElementById('add-dummy-tile');
 
 // 新增：用於顯示版面狀態的 DOM 元素
 const boardHandEl = document.getElementById('board-hand');
 const boardDoraEl = document.getElementById('board-dora');
 const boardWallEl = document.getElementById('board-wall');
 const boardDeadwallEl = document.getElementById('board-deadwall');
+
+/**
+ * 處理牌的陣列，進行特定的轉換和分組。
+ * @param {string[]} arr - 原始的牌代碼陣列。
+ * @returns {object | null} - 包含 'hand', 'dora', 'wall' 和 'deadwall' 的物件，或在輸入無效時返回 null。
+ */
+function processTilesData(arr) {
+  if (!arr || !Array.isArray(arr)) return null;
+  const newArr = [...arr]; // 創建副本以避免修改原始陣列
+  const addDummyTile = document.getElementById('add-dummy-tile').checked;
+
+  if (newArr.length !== 108) {
+    return null;
+  }
+
+  if (addDummyTile) {
+    newArr.unshift('1a');
+  }
+
+  return {
+    hand: newArr.slice(0, 13),
+    dora: newArr.slice(13, 23),
+    wall: newArr.slice(23, 59),
+    deadwall: newArr.slice(59, 108)
+  };
+}
 
 // 新增：渲染版面狀態的函數
 function renderBoardState() {
@@ -44,7 +72,8 @@ chrome.runtime.sendMessage({ type: "GET_LAST_WS_MESSAGE" }, (response) => {
     return;
   }
   if (response && response.currentBoard) {
-    board = response.currentBoard;
+    rawBoard = response.currentBoard; // 儲存原始資料
+    board = processTilesData(rawBoard); // 在 sidepanel 中處理資料
     console.log('已獲取初始版面狀態:', board);
     renderBoardState(); // 獲取到初始狀態後渲染
   } else {
@@ -56,12 +85,21 @@ chrome.runtime.sendMessage({ type: "GET_LAST_WS_MESSAGE" }, (response) => {
 // 監聽來自 background.js 的即時更新
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === "WS_MESSAGE_UPDATE" && request.payload) {
-    board = request.payload;
+    rawBoard = request.payload; // 儲存原始資料
+    board = processTilesData(rawBoard); // 在 sidepanel 中處理資料
     console.log('版面狀態已更新:', board);
     resultEl.innerHTML = ''; // 清空舊的計算結果
     solutionDisplayEl.textContent = ''; // 清空解法顯示
     solutionContainerEl.classList.add('hidden'); // 隱藏解法區塊
     renderBoardState(); // 狀態更新後渲染
+  }
+});
+
+// 當 "add-dummy-tile" 選項變更時，重新處理並渲染版面
+addDummyTileCheckbox.addEventListener('change', () => {
+  if (rawBoard) {
+    board = processTilesData(rawBoard);
+    renderBoardState();
   }
 });
 

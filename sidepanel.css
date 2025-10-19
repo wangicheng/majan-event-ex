@@ -21,7 +21,7 @@ h1, h2 {
 .number-inputs-group {
   display: flex;
   gap: 1em; /* Space between the input groups */
-  margin-bottom: 1em; /* Keep the margin for the whole group */
+  margin-bottom: 0.5em; /* Space between inputs and checkbox */
   align-items: flex-end; /* 將所有子元素（包括按鈕）的底部對齊 */
 }
 
@@ -32,6 +32,14 @@ h1, h2 {
   display: flex; /* 使每個輸入組內部也成為 flex 容器 */
   flex-direction: column; /* 讓 label 和 input 垂直堆疊 */
   justify-content: flex-end; /* 將 label 和 input 推到底部 */
+}
+
+/* 新增：為選項群組設定特定樣式 */
+.number-inputs-group .form-options {
+  flex: 0 1 auto; /* 不要伸展，但可以收縮 */
+  flex-direction: column; /* 覆蓋 "> div" 規則，使其垂直排列 */
+  justify-content: flex-end; /* 與其他輸入組底部對齊 */
+  align-items: center; /* 水平置中 */
 }
 
 /* Ensure labels and inputs within these flex items still stack vertically */
@@ -58,6 +66,13 @@ h1, h2 {
 .number-inputs-group .submit-button-wrapper button {
   width: auto; /* 讓按鈕根據內容自動調整寬度 */
   /* 按鈕的 padding 和 height 會使其與輸入框底部對齊 */
+}
+
+form > div:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-bottom: 1em;
 }
 
 label {
@@ -230,4 +245,16 @@ button:hover {
 #current-board-display span {
   font-weight: bold;
   color: #007bff;
+}
+
+.form-options {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0; /* Wrapper div handles bottom margin */
+}
+
+/* The following rule for .form-options label is no longer needed and should be removed */
+/*
+.form-options label {
+  margin-bottom: 0;
 }
