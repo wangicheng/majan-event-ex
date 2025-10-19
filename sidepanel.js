@@ -33,6 +33,7 @@ const form = document.getElementById('solver-form');
 const handsInput = document.getElementById('hands-input');
 const maxTimesInput = document.getElementById('maxTimes');
 const maxChoiceInput = document.getElementById('maxChoice');
+const lockedInput = document.getElementById('lockedInput');
 const resultEl = document.getElementById('result');
 const solutionDisplayEl = document.getElementById('solution-display');
 const solutionContainerEl = document.getElementById('solution-display-container');
@@ -43,7 +44,7 @@ const executeSolutionBtn = document.getElementById('execute-solution-btn');
 solutionContainerEl.classList.add('hidden');
 
 // 從本地儲存中載入已儲存的表單資料
-chrome.storage.local.get(['handsInput', 'maxTimes', 'maxChoice'], (items) => {
+chrome.storage.local.get(['handsInput', 'maxTimes', 'maxChoice', 'lockedInput'], (items) => {
   if (items.handsInput) {
     handsInput.value = items.handsInput;
   }
@@ -53,6 +54,9 @@ chrome.storage.local.get(['handsInput', 'maxTimes', 'maxChoice'], (items) => {
   if (items.maxChoice) {
     maxChoiceInput.value = items.maxChoice;
   }
+  if (items.lockedInput) {
+    lockedInput.value = items.lockedInput;
+  }
 });
 
 form.addEventListener('submit', (e) => {
@@ -61,6 +65,7 @@ form.addEventListener('submit', (e) => {
   const handsInputText = handsInput.value;
   const maxTimes = parseInt(maxTimesInput.value, 10);
   const maxChoice = parseInt(maxChoiceInput.value, 10);
+  const locked = parseInt(lockedInput.value, 10);
 
   // 將多行輸入分割成陣列
   const lines = handsInputText.split('\n').map(s => s.trim()).filter(s => s);
@@ -70,6 +75,7 @@ form.addEventListener('submit', (e) => {
     handsInput: handsInputText,
     maxTimes: maxTimesInput.value,
     maxChoice: maxChoiceInput.value,
+    lockedInput: lockedInput.value,
   });
 
   if (!board) {
@@ -77,7 +83,7 @@ form.addEventListener('submit', (e) => {
     return;
   }
 
-  if (lines.length === 0 || isNaN(maxTimes) || isNaN(maxChoice)) {
+  if (lines.length === 0 || isNaN(maxTimes) || isNaN(maxChoice) || isNaN(locked)) {
     resultEl.innerHTML = '<p>請輸入有效的參數。</p>';
     return;
   }
@@ -89,7 +95,8 @@ form.addEventListener('submit', (e) => {
   // 為了結果一致性，對手牌進行排序
   const currentBoard = {
       ...board,
-      hand: sortMahjongTiles(board.hand)
+      hand: sortMahjongTiles(board.hand),
+      wall: board.wall.slice(locked)
   };
 
   const allResults = [];
