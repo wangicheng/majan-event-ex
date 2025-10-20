@@ -186,6 +186,56 @@ form.addEventListener('submit', (e) => {
       wall: board.wall.slice(locked)
   };
 
+  // --- START: 自動尋找七對子解 ---
+  const findSevenPairsTarget = () => {
+    const allAvailableTiles = [...currentBoard.hand, ...currentBoard.wall];
+
+    const tileIndices = new Map();
+    allAvailableTiles.forEach((tile, index) => {
+      if (!tileIndices.has(tile)) {
+        tileIndices.set(tile, []);
+      }
+      tileIndices.get(tile).push(index);
+    });
+
+    const allPossiblePairInstances = [];
+    for (const [tile, indices] of tileIndices.entries()) {
+      if (indices.length >= 2) {
+        allPossiblePairInstances.push({ tile, score: indices[1] });
+      }
+    }
+
+    if (allPossiblePairInstances.length < 7) {
+      return null; // 無法組成七對
+    }
+
+    // 根據完成對子的索引（分數）進行排序，越小越好
+    allPossiblePairInstances.sort((a, b) => a.score - b.score);
+
+    // 選取最快的七對
+    const bestPairCandidates = allPossiblePairInstances.slice(0, 7);
+
+    if (bestPairCandidates.length < 7) {
+      return null;
+    }
+
+    const targetHand = [];
+    for (const p of bestPairCandidates) {
+      targetHand.push(p.tile, p.tile);
+    }
+
+    const targetStr = sortMahjongTiles(targetHand).join('');
+    const waitingStr = 'except';
+    
+    return `${targetStr} ${waitingStr}`;
+  };
+
+  const sevenPairsLine = findSevenPairsTarget();
+  if (sevenPairsLine) {
+    lines.unshift(sevenPairsLine);
+  }
+  // --- END: 自動尋找七對子解 ---
+
   const allResults = [];
 
   lines.forEach(line => {
