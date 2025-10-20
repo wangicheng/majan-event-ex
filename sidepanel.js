@@ -225,7 +225,7 @@ form.addEventListener('submit', (e) => {
     }
 
     const targetStr = sortMahjongTiles(targetHand).join('');
-    const waitingStr = 'except';
+    const waitingStr = 'none';
     
     return `${targetStr} ${waitingStr}`;
   };
@@ -255,6 +255,8 @@ form.addEventListener('submit', (e) => {
       // 將 target 牌轉換為標準形式，以便從 ALL_MAHJONG_TILES 中排除
       const canonicalTargetTiles = new Set(target.map(toCanonicalTile));
       waiting = ALL_MAHJONG_TILES.filter(tile => !canonicalTargetTiles.has(tile));
+    } else if (waitingStr === 'none') {
+      waiting = [];
     } else {
       waiting = waitingStr.match(/.{2}/g) || [];
     }
