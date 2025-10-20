@@ -4,6 +4,26 @@ import { sortMahjongTiles } from './src/mahjongSorter.js';
 let board = null; // 用於儲存從 background.js 獲取的版面狀態
 let rawBoard = null; // 用於儲存未經處理的原始版面狀態
 
+// 新增：所有麻將牌的標準列表 (不含赤ドラ的0x形式，因為它們會被轉換為5x)
+const ALL_MAHJONG_TILES = [
+  '1m', '2m', '3m', '4m', '5m', '6m', '7m', '8m', '9m',
+  '1p', '2p', '3p', '4p', '5p', '6p', '7p', '8p', '9p',
+  '1s', '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s',
+  '1z', '2z', '3z', '4z', '5z', '6z', '7z'
+];
+
+/**
+ * 將赤ドラ (0p, 0s, 0m) 轉換為其標準的 5x 形式，用於比較和集合操作。
+ * @param {string} tile - 牌的代碼。
+ * @returns {string} - 標準化的牌代碼。
+ */
+function toCanonicalTile(tile) {
+  if (tile === '0p') return '5p';
+  if (tile === '0s') return '5s';
+  if (tile === '0m') return '5m'; // 假設 0m 也應被視為 5m
+  return tile;
+}
+
 const form = document.getElementById('solver-form');
 const handsInput = document.getElementById('hands-input');
 const maxTimesInput = document.getElementById('maxTimes');
@@ -174,7 +194,20 @@ form.addEventListener('submit', (e) => {
     const waitingStr = spaceIndex === -1 ? '' : line.substring(spaceIndex + 1);
 
     const target = targetStr.match(/.{2}/g) || [];
-    const waiting = waitingStr.match(/.{2}/g) || [];
+    let waiting = []; // 將 waiting 宣告為 let
+
+    // 處理 waitingStr 的關鍵字
+    if (waitingStr === 'same') {
+      waiting = [...target];
+    } else if (waitingStr === 'all') {
+      waiting = [...ALL_MAHJONG_TILES];
+    } else if (waitingStr === 'except') {
+      // 將 target 牌轉換為標準形式，以便從 ALL_MAHJONG_TILES 中排除
+      const canonicalTargetTiles = new Set(target.map(toCanonicalTile));
+      waiting = ALL_MAHJONG_TILES.filter(tile => !canonicalTargetTiles.has(tile));
+    } else {
+      waiting = waitingStr.match(/.{2}/g) || [];
+    }
     
     if (target.length === 0) return;
 
